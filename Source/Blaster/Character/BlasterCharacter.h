@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Blaster/BlasterTypes/TurningInPlace.h"
 #include "BlasterCharacter.generated.h"
 
 UCLASS()
@@ -12,20 +13,18 @@ class BLASTER_API ABlasterCharacter : public ACharacter
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this character's properties
 	ABlasterCharacter();
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-
 	virtual void PostInitializeComponents() override;
 protected:
 	virtual void BeginPlay() override;
-	 
-	void MoveForward(float value);
-	void MoveRight(float value);
-	void Turn(float value);
-	void LookUp(float value);
+
+	void MoveForward(float Value);
+	void MoveRight(float Value);
+	void Turn(float Value);
+	void LookUp(float Value);
 	void EquipButtonPressed();
 	void CrouchButtonPressed();
 	void AimButtonPressed();
@@ -51,17 +50,22 @@ private:
 	UPROPERTY(VisibleAnywhere)
 	class UCombatComponent* Combat;
 
-	UFUNCTION(Server , Reliable)
-	void ServerEquipButtinPressed();
+	UFUNCTION(Server, Reliable)
+	void ServerEquipButtonPressed();
 
 	float AO_Yaw;
 	float AO_Pitch;
-
 	FRotator StartingAimRotation;
-public:
+
+	ETurningInPlace TurningInPlace;
+	void TurnInPlace(float DeltaTime);
+
+public:	
 	void SetOverlappingWeapon(AWeapon* Weapon);
 	bool IsWeaponEquipped();
 	bool IsAiming();
 	FORCEINLINE float GetAO_Yaw() const { return AO_Yaw; }
 	FORCEINLINE float GetAO_Pitch() const { return AO_Pitch; }
+	AWeapon* GetEquippedWeapon();
+	FORCEINLINE ETurningInPlace GetTurningInPlace() const { return TurningInPlace; }
 };

@@ -5,24 +5,54 @@
 #include "Blaster/Weapon/Weapon.h"
 #include "Blaster/Character/BlasterCharacter.h"
 #include "Engine/SkeletalMeshSocket.h"
+#include "Components/SphereComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "Components/SphereComponent.h"
 
-// Sets default values for this component's properties
 UCombatComponent::UCombatComponent()
 {
+	PrimaryComponentTick.bCanEverTick = false;
+
 	BaseWalkSpeed = 600.f;
 	AimWalkSpeed = 450.f;
-	PrimaryComponentTick.bCanEverTick = false;
 }
+
 
 void UCombatComponent::BeginPlay()
 {
 	Super::BeginPlay();
+
 	if (Character)
 	{
 		Character->GetCharacterMovement()->MaxWalkSpeed = BaseWalkSpeed;
+	}
+}
+
+void UCombatComponent::SetAiming(bool bIsAiming)
+{
+	bAiming = bIsAiming;
+	ServerSetAiming(bIsAiming);
+	if (Character)
+	{
+		Character->GetCharacterMovement()->MaxWalkSpeed = bIsAiming ? AimWalkSpeed : BaseWalkSpeed;
+	}
+}
+
+void UCombatComponent::ServerSetAiming_Implementation(bool bIsAiming)
+{
+	bAiming = bIsAiming;
+	if (Character)
+	{
+		Character->GetCharacterMovement()->MaxWalkSpeed = bIsAiming ? AimWalkSpeed : BaseWalkSpeed;
+	}
+}
+
+void UCombatComponent::OnRep_EquippedWeapon()
+{
+	if (EquippedWeapon && Character)
+	{
+		Character->GetCharacterMovement()->bOrientRotationToMovement = false;
+		Character->bUseControllerRotationYaw = true;
 	}
 }
 
@@ -38,15 +68,6 @@ void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 
 	DOREPLIFETIME(UCombatComponent, EquippedWeapon);
 	DOREPLIFETIME(UCombatComponent, bAiming);
-}
-
-void UCombatComponent::OnRep_EquippedWeapon()
-{
-	if (EquippedWeapon && Character)
-	{
-		Character->GetCharacterMovement()->bOrientRotationToMovement = false;
-		Character->bUseControllerRotationYaw = true;
-	}
 }
 
 void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
@@ -65,22 +86,3 @@ void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
 	Character->bUseControllerRotationYaw = true;
 }
 
-void UCombatComponent::SetAiming(bool bIsAiming)
-{
-	bAiming = bIsAiming; 
-	ServerSetAiming(bIsAiming);
-	
-	if (Character)
-	{
-		Character->GetCharacterMovement()->MaxWalkSpeed = bIsAiming ? AimWalkSpeed : BaseWalkSpeed;
-	}
-	
-}
-void UCombatComponent::ServerSetAiming_Implementation(bool bIsAiming)
-{
-	bAiming = bIsAiming;
-	if (Character)
-	{
-		Character->GetCharacterMovement()->MaxWalkSpeed = bIsAiming ? AimWalkSpeed : BaseWalkSpeed;
-	}
-}

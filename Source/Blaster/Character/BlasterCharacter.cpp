@@ -6,16 +6,14 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/WidgetComponent.h"
-#include "Blaster/Weapon/Weapon.h"
 #include "Net/UnrealNetwork.h"
+#include "Blaster/Weapon/Weapon.h"
+#include "Blaster/BlasterComponents/CombatComponent.h"
 #include "Components/CapsuleComponent.h"
-#include "Blaster/CombatComponent/CombatComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 
-// Sets default values
 ABlasterCharacter::ABlasterCharacter()
 {
- 
 	PrimaryActorTick.bCanEverTick = true;
 
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
@@ -37,9 +35,10 @@ ABlasterCharacter::ABlasterCharacter()
 	Combat->SetIsReplicated(true);
 
 	GetCharacterMovement()->NavAgentProps.bCanCrouch = true;
-
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
+
+	TurningInPlace = ETurningInPlace::ETIP_NotTurning;
 }
 
 void ABlasterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -48,8 +47,6 @@ void ABlasterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 
 	DOREPLIFETIME_CONDITION(ABlasterCharacter, OverlappingWeapon, COND_OwnerOnly);
 }
-
-
 
 void ABlasterCharacter::BeginPlay()
 {
@@ -123,28 +120,35 @@ void ABlasterCharacter::EquipButtonPressed()
 {
 	if (Combat)
 	{
-		if (HasAuthority()) 
+		if (HasAuthority())
 		{
 			Combat->EquipWeapon(OverlappingWeapon);
 		}
 		else
 		{
-			ServerEquipButtinPressed();
+			ServerEquipButtonPressed();
 		}
-	
+	}
+}
+
+void ABlasterCharacter::ServerEquipButtonPressed_Implementation()
+{
+	if (Combat)
+	{
+		Combat->EquipWeapon(OverlappingWeapon);
 	}
 }
 
 void ABlasterCharacter::CrouchButtonPressed()
-{ 
+{
 	if (bIsCrouched)
 	{
 		UnCrouch();
-	}else
+	}
+	else
 	{
 		Crouch();
 	}
-	
 }
 
 void ABlasterCharacter::AimButtonPressed()
@@ -171,39 +175,42 @@ void ABlasterCharacter::AimOffset(float DeltaTime)
 	float Speed = Velocity.Size();
 	bool bIsInAir = GetCharacterMovement()->IsFalling();
 
-	if (Speed == 0.f && !bIsInAir) //Standing still, not jumping
+	if (Speed == 0.f && !bIsInAir) // standing still, not jumping
 	{
 		FRotator CurrentAimRotation = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
-		FRotator DeltaAimRotation = UKismetMathLibrary::NormalizedDeltaRotator
-		(CurrentAimRotation, StartingAimRotation);
+		FRotator DeltaAimRotation = UKismetMathLibrary::NormalizedDeltaRotator(CurrentAimRotation, StartingAimRotation);
 		AO_Yaw = DeltaAimRotation.Yaw;
 		bUseControllerRotationYaw = false;
+		TurnInPlace(DeltaTime);
 	}
 	if (Speed > 0.f || bIsInAir) // running, or jumping
 	{
 		StartingAimRotation = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
 		AO_Yaw = 0.f;
 		bUseControllerRotationYaw = true;
+		TurningInPlace = ETurningInPlace::ETIP_NotTurning;
 	}
 
 	AO_Pitch = GetBaseAimRotation().Pitch;
 	if (AO_Pitch > 90.f && !IsLocallyControlled())
 	{
-		// map pitch from the erange 270 to 360 to the range (-90,0)
+		// map pitch from [270, 360) to [-90, 0)
 		FVector2D InRange(270.f, 360.f);
 		FVector2D OutRange(-90.f, 0.f);
 		AO_Pitch = FMath::GetMappedRangeValueClamped(InRange, OutRange, AO_Pitch);
 	}
-
 }
 
-void ABlasterCharacter::ServerEquipButtinPressed_Implementation()
+void ABlasterCharacter::TurnInPlace(float DeltaTime)
 {
-	if (Combat)
+	if (AO_Yaw > 90.f)
 	{
-		Combat->EquipWeapon(OverlappingWeapon);
+		TurningInPlace = ETurningInPlace::ETIP_Right;
 	}
-
+	else if (AO_Yaw < -90.f)
+	{
+		TurningInPlace = ETurningInPlace::ETIP_Left;
+	}
 }
 
 void ABlasterCharacter::SetOverlappingWeapon(AWeapon* Weapon)
@@ -221,8 +228,6 @@ void ABlasterCharacter::SetOverlappingWeapon(AWeapon* Weapon)
 		}
 	}
 }
-
-
 
 void ABlasterCharacter::OnRep_OverlappingWeapon(AWeapon* LastWeapon)
 {
@@ -246,7 +251,8 @@ bool ABlasterCharacter::IsAiming()
 	return (Combat && Combat->bAiming);
 }
 
-
-
-
-
+AWeapon* ABlasterCharacter::GetEquippedWeapon()
+{
+	if (Combat == nullptr) return nullptr;
+	return Combat->EquippedWeapon;
+}

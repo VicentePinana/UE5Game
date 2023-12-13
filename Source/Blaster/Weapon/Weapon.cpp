@@ -5,9 +5,7 @@
 #include "Components/SphereComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Blaster/Character/BlasterCharacter.h"
-#include <Net/UnrealNetwork.h>
-
-
+#include "Net/UnrealNetwork.h"
 
 // Sets default values
 AWeapon::AWeapon()
@@ -78,7 +76,7 @@ void AWeapon::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActo
 	}
 }
 
-void AWeapon::SetWeaponState(EWeaponState State) 
+void AWeapon::SetWeaponState(EWeaponState State)
 {
 	WeaponState = State;
 	switch (WeaponState)
@@ -90,8 +88,7 @@ void AWeapon::SetWeaponState(EWeaponState State)
 	}
 }
 
-
-void AWeapon::OnRepWeaponState()
+void AWeapon::OnRep_WeaponState()
 {
 	switch (WeaponState)
 	{

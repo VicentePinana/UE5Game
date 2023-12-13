@@ -2,9 +2,7 @@
 
 
 #include "LobbyGameMode.h"
-#include "GameFramework/GameStateBase.h" 
-
-
+#include "GameFramework/GameStateBase.h"
 
 void ALobbyGameMode::PostLogin(APlayerController* NewPlayer)
 {

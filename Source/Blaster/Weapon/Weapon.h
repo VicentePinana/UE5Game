@@ -16,13 +16,12 @@ enum class EWeaponState : uint8
 	EWS_MAX UMETA(DisplayName = "DefaultMAX")
 };
 
-
 UCLASS()
 class BLASTER_API AWeapon : public AActor
 {
 	GENERATED_BODY()
-
-public:
+	
+public:	
 	AWeapon();
 	virtual void Tick(float DeltaTime) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
@@ -40,16 +39,13 @@ protected:
 		const FHitResult& SweepResult
 	);
 
-
 	UFUNCTION()
-	virtual void OnSphereEndOverlap(
+	void OnSphereEndOverlap(
 		UPrimitiveComponent* OverlappedComponent,
 		AActor* OtherActor,
 		UPrimitiveComponent* OtherComp,
 		int32 OtherBodyIndex
 	);
-
-
 
 private:
 	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties")
@@ -58,16 +54,16 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties")
 	class USphereComponent* AreaSphere;
 
-	UPROPERTY(ReplicatedUsing = OnRepWeaponState, VisibleAnywhere, Category = "Weapon Properties")
+	UPROPERTY(ReplicatedUsing = OnRep_WeaponState, VisibleAnywhere, Category = "Weapon Properties")
 	EWeaponState WeaponState;
-	
+
 	UFUNCTION()
-	void OnRepWeaponState();
+	void OnRep_WeaponState();
 
 	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties")
 	class UWidgetComponent* PickupWidget;
-public:
-
+public:	
 	void SetWeaponState(EWeaponState State);
 	FORCEINLINE USphereComponent* GetAreaSphere() const { return AreaSphere; }
+	FORCEINLINE USkeletalMeshComponent* GetWeaponMesh() const { return WeaponMesh; }
 };

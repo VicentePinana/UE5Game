@@ -4,16 +4,15 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "OverHeadWidget.generated.h"
+#include "OverheadWidget.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class BLASTER_API UOverHeadWidget : public UUserWidget
+class BLASTER_API UOverheadWidget : public UUserWidget
 {
 	GENERATED_BODY()
-
 public:
 	UPROPERTY(meta = (BindWidget))
 	class UTextBlock* DisplayText;
@@ -23,9 +22,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void ShowPlayerNetRole(APawn* InPawn);
 
-	UFUNCTION(BlueprintCallable)
-	void ShowPlayerName(APawn* InPawn);
-
 protected:
-	virtual void OnLevelRemovedFromWorld(ULevel* InLevel, UWorld* InWorld);
+	virtual void NativeDestruct(ULevel* InLevel, UWorld* InWorld);
+
 };

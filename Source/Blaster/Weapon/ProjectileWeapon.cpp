@@ -10,7 +10,7 @@ void AProjectileWeapon::Fire(const FVector& HitTarget)
 	Super::Fire(HitTarget);
 
 	if (!HasAuthority()) return;
-	
+
 	APawn* InstigatorPawn = Cast<APawn>(GetOwner());
 	const USkeletalMeshSocket* MuzzleFlashSocket = GetWeaponMesh()->GetSocketByName(FName("MuzzleFlash"));
 	if (MuzzleFlashSocket)
@@ -27,12 +27,12 @@ void AProjectileWeapon::Fire(const FVector& HitTarget)
 			UWorld* World = GetWorld();
 			if (World)
 			{
-					World->SpawnActor<AProjectile>(
+				World->SpawnActor<AProjectile>(
 					ProjectileClass,
 					SocketTransform.GetLocation(),
 					TargetRotation,
 					SpawnParams
-				);
+					);
 			}
 		}
 	}

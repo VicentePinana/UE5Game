@@ -5,21 +5,20 @@
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundCue.h"
 
-
+// Sets default values
 ACasing::ACasing()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 
 	CasingMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("CasingMesh"));
 	SetRootComponent(CasingMesh);
-	CasingMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, 
-	ECollisionResponse::ECR_Ignore);
+	CasingMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 	CasingMesh->SetSimulatePhysics(true);
 	CasingMesh->SetEnableGravity(true);
 	CasingMesh->SetNotifyRigidBodyCollision(true);
 	ShellEjectionImpulse = 10.f;
 }
+
 
 
 void ACasing::BeginPlay()
@@ -38,5 +37,4 @@ void ACasing::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitive
 	}
 	Destroy();
 }
-
 

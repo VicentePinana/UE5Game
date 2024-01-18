@@ -35,6 +35,11 @@ void UOverheadWidget::ShowPlayerNetRole(APawn* InPawn)
 	SetDisplayText(RemoteRoleString);
 }
 
+void UOverheadWidget::ShowPlayerName(APawn* InPawn)
+{
+	
+}
+
 void UOverheadWidget::NativeDestruct(ULevel* InLevel, UWorld* InWorld)
 {
 	RemoveFromParent();

@@ -18,9 +18,9 @@ void ABlasterPlayerController::SetHUDHealth(float Health, float MaxHealth)
 {
 	BlasterHUD = BlasterHUD == nullptr ? Cast<ABlasterHUD>(GetHUD()) : BlasterHUD;
 
-	bool bHUDValid = BlasterHUD &&
-		BlasterHUD->CharacterOverlay &&
-		BlasterHUD->CharacterOverlay->HealthBar &&
+	bool bHUDValid = BlasterHUD && 
+		BlasterHUD->CharacterOverlay && 
+		BlasterHUD->CharacterOverlay->HealthBar && 
 		BlasterHUD->CharacterOverlay->HealthText;
 	if (bHUDValid)
 	{

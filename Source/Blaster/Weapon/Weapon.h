@@ -27,7 +27,7 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	void ShowPickupWidget(bool bShowWidget);
 	virtual void Fire(const FVector& HitTarget);
-
+	void Dropped();
 	/**
 	* Textures for the weapon crosshairs
 	*/
@@ -57,11 +57,9 @@ public:
 	UPROPERTY(EditAnywhere)
 	float ZoomInterpSpeed = 20.f;
 
-
-	/**
-	* Automatic Fire
+	/** 
+	* Automatic fire
 	*/
-
 	UPROPERTY(EditAnywhere, Category = Combat)
 	float FireDelay = .15f;
 
